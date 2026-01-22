@@ -4,30 +4,89 @@ metadata:
   name: cleanup
 spec:
   workspaces:
-    - name: source
+    - name: output
   steps:
     - name: remove
       image: alpine:3
-      env:
-        - name: WORKSPACE_SOURCE_PATH
-          value: $(workspaces.source.path)
-      workingDir: $(workspaces.source.path)
-      securityContext:
-        runAsNonRoot: false
-        runAsUser: 0
-      script: |-
-        #!/usr/bin/env sh
-        set -eu
-        echo "Entferne alle Dateien aus ${WORKSPACE_SOURCE_PATH} ..."
-        # Löschen Sie alle vorhandenen Inhalte des Verzeichnisses, falls es existiert.
-        #
-        # Wir verwenden nicht einfach "rm -rf ${WORKSPACE_SOURCE_PATH}", da ${WORKSPACE_SOURCE_PATH} möglicherweise "/"
-        # oder das Wurzelverzeichnis eines gemounteten Volumes ist.
-        if [ -d "${WORKSPACE_SOURCE_PATH}" ] ; then
-          # Löschen Sie nicht versteckte Dateien und Verzeichnisse
-          rm -rf "${WORKSPACE_SOURCE_PATH:?}"/*
-          # Löschen Sie Dateien und Verzeichnisse, die mit . beginnen, aber .. ausschließen
-          rm -rf "${WORKSPACE_SOURCE_PATH}"/.[!.]*
-          # Löschen Sie Dateien und Verzeichnisse, die mit .. beginnen, plus jedes andere Zeichen
-          rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
-        fi
+      script: |
+        #!/bin/sh
+        rm -rf $(workspaces.output.path)/*
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  params:
+    - name: url
+      type: string
+      description: The git repository URL to clone
+  workspaces:
+    - name: output
+  steps:
+    - name: clone
+      image: alpine/git
+      script: |
+        git clone $(params.url) $(workspaces.output.path)
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: flake8
+spec:
+  workspaces:
+    - name: output
+  steps:
+    - name: lint
+      image: python:3.8
+      workingDir: $(workspaces.output.path)
+      script: |
+        pip install flake8
+        flake8 .
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose
+spec:
+  workspaces:
+    - name: output
+  steps:
+    - name: test
+      image: python:3.8
+      workingDir: $(workspaces.output.path)
+      script: |
+        pip install nose
+        nosetests
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah
+spec:
+  workspaces:
+    - name: output
+  steps:
+    - name: build
+      image: quay.io/buildah/stable
+      workingDir: $(workspaces.output.path)
+      script: |
+        buildah bud -t my-image:latest .
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-app
+spec:
+  workspaces:
+    - name: output
+  steps:
+    - name: deploy
+      image: bitnami/kubectl
+      script: |
+        kubectl apply -f deployment.yaml
