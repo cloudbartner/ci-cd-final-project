@@ -19,12 +19,24 @@ spec:
         #!/usr/bin/env sh
         set -eu
         echo "Entferne alle Dateien aus ${WORKSPACE_SOURCE_PATH} ..."
-        # Löschen Sie alle vorhandenen Inhalte des Verzeichnisses, falls es existiert.
         if [ -d "${WORKSPACE_SOURCE_PATH}" ] ; then
-          # Löschen Sie nicht versteckte Dateien und Verzeichnisse
           rm -rf "${WORKSPACE_SOURCE_PATH:?}"/*
-          # Löschen Sie Dateien und Verzeichnisse, die mit . beginnen, aber .. ausschließen
           rm -rf "${WORKSPACE_SOURCE_PATH}"/.[!.]*
-          # Löschen Sie Dateien und Verzeichnisse, die mit .. beginnen, plus jedes andere Zeichen
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
         fi
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: test
+      image: python:3.8-slim
+      workingDir: $(workspaces.source.path)
+      script: |
+        pip install nose
+        nosetests
