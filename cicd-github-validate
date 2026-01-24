@@ -1,0 +1,56 @@
+Bartner > gh run list                      
+STATUS  TITLE                                               WORKFLOW     BRANCH  EVENT  ID           ELAPSED  AGE               
+✓       adjusted naming from linter in workflow.yml         CI-Workflow  main    push   21313703036  21s      about 1 minute ago
+✓       adjusted tasks.yml                                  CI-Workflow  main    push   21263566440  24s      about 1 day ago
+✓       added tekton tasks                                  CI-Workflow  main    push   21260201397  25s      about 1 day ago
+✓       adjusted workflow.yml with intialising and adde...  CI-Workflow  main    push   21260030428  25s      about 1 day ago
+X       adjusted readme.md                                  CI-Workflow  main    push   21259865827  0s       about 1 day ago
+X       Initial commit                                      CI-Workflow  main    push   21258800456  0s       about 1 day ago
+Bartner > gh run view 21313703036          
+^[[A
+✓ main CI-Workflow · 21313703036
+Triggered via push about 1 minute ago
+
+JOBS
+✓ Lint mit flake8 in 17s (ID 61353522184)
+✓ build in 18s (ID 61353522186)
+✓ Führen Sie mit nose Unit-Tests aus in 17s (ID 61353522194)
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/cloudbartner/ci-cd-final-project/actions/runs/21313703036
+Bartner > gh run view 21313703036 --verbose
+
+✓ main CI-Workflow · 21313703036
+Triggered via push about 2 minutes ago
+
+JOBS
+✓ Lint mit flake8 in 17s (ID 61353522184)
+  ✓ Set up job
+  ✓ Initialize containers
+  ✓ Checkout
+  ✓ Installiere Abhängigkeiten
+  ✓ Lint mit flake8
+  ✓ Post Checkout
+  ✓ Stop containers
+  ✓ Complete job
+✓ build in 18s (ID 61353522186)
+  ✓ Set up job
+  ✓ Initialize containers
+  ✓ Checkout
+  ✓ Installiere Abhängigkeiten
+  ✓ Post Checkout
+  ✓ Stop containers
+  ✓ Complete job
+✓ Führen Sie mit nose Unit-Tests aus in 17s (ID 61353522194)
+  ✓ Set up job
+  ✓ Initialize containers
+  ✓ Checkout
+  ✓ Installiere Abhängigkeiten
+  ✓ Unit-Tests ausführen
+  ✓ Post Checkout
+  ✓ Stop containers
+  ✓ Complete job
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/cloudbartner/ci-cd-final-project/actions/runs/21313703036
+Bartner > ellen Sie sicher, dass Sie sich im richtigen Repository-V
